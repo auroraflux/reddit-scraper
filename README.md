@@ -1,81 +1,60 @@
 # reddit-scraper
 
-Lightweight Reddit thread scraper with full comment hierarchy. **FREE**, **fast** (5-8s), **100% extraction**.
+Extracts Reddit threads with full comment hierarchy using the public JSON API.
 
-## Features
+## Requirements
 
-- ✅ **FREE** - No LLM costs, no API authentication required
-- ✅ **Complete** - Extracts 100% of comments with unlimited nesting depth
-- ✅ **Fast** - 5-8 seconds per thread
-- ✅ **Simple** - Uses Reddit's public JSON API
-- ✅ **REST API** - FastAPI server with web interface
-- ✅ **CLI Tool** - Standalone command-line usage
-- ✅ **Pip-installable** - Easy installation and integration
+- Python 3.8+
+- Internet connection
 
-## Quick Start
-
-### Installation
+## Installation
 
 ```bash
-# Install from source
 git clone https://github.com/auroraflux/reddit-scraper.git
 cd reddit-scraper
 pip install -e .
 ```
 
-### Usage
+## Usage
 
-**Option 1: API Server (Recommended)**
-
+Start the API server:
 ```bash
-# Start the server
-./scripts/start_server.sh
-# Or: python -m reddit_scraper.server
-
-# Open web interface
-open http://localhost:8001
+python -m reddit_scraper.server
 ```
 
-**Option 2: CLI**
+Server runs at http://localhost:8001
 
+Scrape from command line:
 ```bash
-python -m reddit_scraper.scraper https://reddit.com/r/python/comments/...
+python -m reddit_scraper.scraper https://reddit.com/r/python/comments/abc123/example
 ```
 
-**Option 3: Python Module**
-
+Use as Python module:
 ```python
 from reddit_scraper import scrape_reddit_post
 
-result = scrape_reddit_post('https://reddit.com/r/python/comments/...')
-print(f"Found {len(result['comments'])} top-level comments")
+result = scrape_reddit_post('https://reddit.com/r/python/comments/abc123/example')
+print(result['stats']['total_comments'])
 ```
 
-## API Documentation
+## API
 
-### REST API Endpoints
+### POST /scrape
 
-**Start Server:** `python -m reddit_scraper.server`
-**Server URL:** `http://localhost:8001`
-
-#### `POST /scrape`
-
-Scrape a Reddit thread and return structured JSON.
-
-**Request:**
+Request:
 ```json
 {
-  "url": "https://reddit.com/r/python/comments/abc123/test"
+  "url": "https://reddit.com/r/python/comments/abc123/example"
 }
 ```
 
-**Response:**
+Response:
 ```json
 {
   "success": true,
-  "url": "https://old.reddit.com/r/python/comments/abc123/test",
+  "url": "https://old.reddit.com/r/python/comments/abc123/example",
   "post": {
-    "title": "Post title",
+    "title": "Example Post",
     "author": "username",
     "score": 123,
     "timestamp": 1234567890,
@@ -89,13 +68,7 @@ Scrape a Reddit thread and return structured JSON.
       "score": 45,
       "text": "Comment text",
       "timestamp": 1234567890,
-      "replies": [
-        {
-          "author": "user2",
-          "text": "Reply text",
-          "replies": [...]
-        }
-      ]
+      "replies": []
     }
   ],
   "stats": {
@@ -107,147 +80,75 @@ Scrape a Reddit thread and return structured JSON.
 }
 ```
 
-#### `GET /health`
+### GET /health
 
-Health check endpoint.
+Returns server status.
 
-#### `GET /`
+### GET /
 
-Web interface for interactive testing.
+Web interface for testing.
 
-#### `GET /docs`
+### GET /docs
 
-Swagger UI documentation.
+OpenAPI documentation.
 
-## Features in Detail
+## Configuration
 
-### Complete Comment Extraction
+The scraper automatically converts reddit.com URLs to old.reddit.com and appends `.json?limit=500`.
 
-- Extracts **100% of visible comments** (not just partial)
-- Preserves **unlimited nesting depth** (5+ levels)
-- Maintains **exact hierarchy** as shown on Reddit
-- Includes comment metadata: author, score, timestamp, text
+No authentication required. No API keys needed.
 
-### Automatic URL Handling
+## Performance
 
-Automatically converts any Reddit URL format:
-- `reddit.com` → `old.reddit.com`
-- `www.reddit.com` → `old.reddit.com`
-- Works with any post URL format
+Typical thread: 5-8 seconds (network-bound)
 
-### Fast & Reliable
+Extracts 100% of visible comments with unlimited nesting depth. Doesn't expand "load more comments" links.
 
-- **5-8 seconds** per thread (network-bound)
-- Uses Reddit's official JSON API
-- No browser automation needed
-- Deterministic results (always same output)
+## Limitations
 
-### FREE
-
-- **No API costs** (unlike LLM-based scrapers)
-- **No authentication** required
-- **No rate limits** for personal use
-- Just respectful HTTP requests
-
-## Use Cases
-
-**Perfect for:**
-- Providing Reddit discussion context to LLMs (Claude, ChatGPT)
-- Understanding community sentiment before posting
-- Researching technical discussions
-- Archiving important threads
-- Analyzing comment patterns
-
-**Not for:**
-- Mass scraping thousands of threads
-- Commercial data collection
-- Training LLMs or ML models
-- Systematic data harvesting
-
-## Architecture
-
-```
-reddit-scraper/
-├── reddit_scraper/          # Package directory
-│   ├── __init__.py         # Package initialization
-│   ├── scraper.py          # Core scraping logic
-│   └── server.py           # FastAPI REST server
-├── docs/                    # Documentation
-│   ├── api-guide.md        # API server guide
-│   ├── scraping-guide.md   # Implementation details
-│   ├── comparison.md       # vs other approaches
-│   └── guidelines.md       # Code standards
-├── scripts/                 # Utility scripts
-│   └── start_server.sh     # Server startup script
-├── tests/                   # Test files
-├── setup.py                 # Package configuration
-├── requirements.txt         # Dependencies
-└── README.md                # This file
-```
-
-## Requirements
-
-- **Python 3.8+**
-- Dependencies (auto-installed):
-  - `fastapi>=0.100.0`
-  - `uvicorn>=0.20.0`
-  - `pydantic>=2.0.0`
-  - `requests>=2.28.0`
-
-## Documentation
-
-- **[API Guide](./docs/api-guide.md)** - Complete API server documentation
-- **[Scraping Guide](./docs/scraping-guide.md)** - Implementation details and usage patterns
-- **[Comparison](./docs/comparison.md)** - reddit-scraper vs other approaches
-- **[Guidelines](./docs/guidelines.md)** - Code quality standards
+- Reddit only
+- Public posts only
+- No "load more comments" expansion
+- No rate limiting protection
 
 ## Development
 
-### Running Tests
-
+Run tests:
 ```bash
 pip install -e ".[dev]"
 pytest
 ```
 
-### Code Standards
-
-This project follows strict code quality standards defined in [docs/guidelines.md](./docs/guidelines.md):
+Code must follow docs/guidelines.md:
 - Maximum 20 lines per function
 - Type hints required
-- Comprehensive docstrings
-- No magic numbers or duplicated code
+- No magic numbers
 
-## Comparison
+## Troubleshooting
 
-| Feature | reddit-scraper | LLM-based scrapers |
-|---------|----------------|-------------------|
-| **Cost** | FREE | ~$0.002/page |
-| **Speed** | 5-8 seconds | 10-15 seconds |
-| **Accuracy** | 100% (deterministic) | ~95% (LLM) |
-| **Comments** | All (unlimited depth) | Partial (token limits) |
-| **Sites** | Reddit only | Any website |
+Port 8001 already in use:
+```bash
+# Change port in reddit_scraper/server.py
+# Find: port=8001
+# Change to: port=8002
+```
 
-**For Reddit:** Use reddit-scraper
-**For other websites:** Use LLM-based tools like Crawl4AI
+Module import errors:
+```bash
+pip install -e .
+```
 
-## Contributing
+## Documentation
 
-1. Follow [docs/guidelines.md](./docs/guidelines.md) standards
-2. Add tests for new features
-3. Update documentation
-4. Submit pull requests
+- docs/api-guide.md - Complete API documentation
+- docs/scraping-guide.md - Implementation details
+- docs/comparison.md - Comparison with alternatives
+- docs/guidelines.md - Code standards
+
+## Related
+
+General web scraping with LLM: https://github.com/auroraflux/crawlai-integration
 
 ## License
 
-[Add license here - MIT recommended]
-
-## Acknowledgments
-
-Extracted from the [crawlAI](https://github.com/auroraflux/crawlai-integration) project to provide a focused, single-purpose tool for Reddit scraping.
-
-For general web scraping with LLM support, see [crawlai-integration](https://github.com/auroraflux/crawlai-integration).
-
----
-
-**Last Updated:** 2025-10-25
+MIT
