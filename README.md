@@ -18,7 +18,7 @@ Lightweight Reddit thread scraper with full comment hierarchy. **FREE**, **fast*
 
 ```bash
 # Install from source
-git clone https://github.com/YOUR_USERNAME/reddit-scraper.git
+git clone https://github.com/auroraflux/reddit-scraper.git
 cd reddit-scraper
 pip install -e .
 ```
@@ -244,9 +244,9 @@ This project follows strict code quality standards defined in [docs/guidelines.m
 
 ## Acknowledgments
 
-Extracted from the [crawlAI](https://github.com/YOUR_USERNAME/crawlai-integration) project to provide a focused, single-purpose tool for Reddit scraping.
+Extracted from the [crawlAI](https://github.com/auroraflux/crawlai-integration) project to provide a focused, single-purpose tool for Reddit scraping.
 
-For general web scraping with LLM support, see [crawlai-integration](https://github.com/YOUR_USERNAME/crawlai-integration).
+For general web scraping with LLM support, see [crawlai-integration](https://github.com/auroraflux/crawlai-integration).
 
 ---
 
